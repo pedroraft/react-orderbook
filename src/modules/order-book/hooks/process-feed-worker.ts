@@ -66,26 +66,35 @@ export const processFeed = async ({
     }),
   };
 
-  const priceArr = feedMapArray.asks
-    .concat(feedMapArray.bids)
-    .map(({ price }) => price);
-  const maxPrice = Math.max(...priceArr);
-  const minPrice = Math.min(...priceArr);
   const combinedSizeAsks =
     feedMapArray.asks[feedMapArray.asks.length - 1]?.total;
   const combinedSizeBids =
     feedMapArray.bids[feedMapArray.bids.length - 1]?.total;
   const maxSize = Math.max(combinedSizeAsks, combinedSizeBids);
 
-  const getChartPropsFromFeed = (feed: OrderBookFeed[]) =>
-    feed.map((item) => ({
-      ...item,
-      pricePercent: ((item.price - minPrice) / (maxPrice - minPrice)) * 100,
-      sizePercent: (item.size / maxSize) * 100,
-    }));
+  const getChartPropsFromFeed = ({
+    feed,
+    type,
+  }: {
+    feed: OrderBookFeed[];
+    type: FeedType;
+  }) => {
+    const priceArr = feed.map(({ price }) => price);
+    const maxPrice = Math.max(...priceArr);
+    const minPrice = Math.min(...priceArr);
+    return feed.map((item) => {
+      const pricePercent =
+        ((item.price - minPrice) / (maxPrice - minPrice)) * 100;
+      return {
+        ...item,
+        pricePercent: type === "bid" ? 100 - pricePercent : pricePercent,
+        sizePercent: (item.size / maxSize) * 100,
+      };
+    });
+  };
 
   return {
-    asks: getChartPropsFromFeed(feedMapArray.asks),
-    bids: getChartPropsFromFeed(feedMapArray.bids),
+    asks: getChartPropsFromFeed({ feed: feedMapArray.asks, type: "ask" }),
+    bids: getChartPropsFromFeed({ feed: feedMapArray.bids, type: "bid" }),
   };
 };

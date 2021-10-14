@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { Subject } from "rxjs";
 import { bufferWhen } from "rxjs/operators";
 import { webSocket } from "rxjs/webSocket";
-import worker from "workerize-loader!./process-feed-worker"; // eslint-disable-line import/no-webpack-loader-syntax
 import { usePrevious } from "../../../core/hooks/usePrevious";
 import {
   FeedStorage,
@@ -12,7 +11,19 @@ import {
 import { processFeed } from "./process-feed-worker";
 import { mergeRawFeedToFeedMap } from "./process-order-book";
 
-const workerInstance = worker<{ processFeed: typeof processFeed }>();
+const getWorker = async () => {
+  try {
+    if (!!window.Worker) {
+      const { default: worker } = await import(
+        "workerize-loader!./process-feed-worker"
+      ); // eslint-disable-line import/no-webpack-loader-syntax
+      return worker<{ processFeed: typeof processFeed }>();
+    }
+  } catch (e) {
+    console.warn("worker not available");
+  }
+  return { processFeed };
+};
 
 export const PRODUCT_GROUPS = {
   PI_XBTUSD: [0.5, 1, 2.5],
@@ -127,6 +138,10 @@ export const useOrderBook = (
   }, [lastProduct, product]);
 
   // process feed map to array on a worker thread
+  const [workerInstance, setWorkerInstance] = useState({ processFeed });
+  useEffect(() => {
+    (async () => setWorkerInstance((await getWorker()) as any))();
+  }, []);
   useEffect(() => {
     (async () => {
       setFeed(
@@ -136,7 +151,7 @@ export const useOrderBook = (
         })
       );
     })();
-  }, [feedMap, tick]);
+  }, [feedMap, tick, workerInstance]);
 
   return {
     product,

@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { theme, Theme } from "../../../config/theme";
+import { useIsPhone } from "../../../core/hooks/useIsPhone";
 import { FeedType, OrderBookFeed } from "../order-book";
 
 const Table = styled.table<{ inverted: boolean; theme: Theme }>`
@@ -28,12 +29,12 @@ const TD = styled.td<{ type?: FeedType; theme: Theme }>`
   }};
 `;
 
-const Row: React.FC<OrderBookFeed & { type: FeedType }> = React.memo(
-  ({ price, size, total, type, pricePercent }) => (
+const Row: React.FC<OrderBookFeed & { type: FeedType; isPhone: boolean }> =
+  React.memo(({ price, size, total, type, pricePercent, isPhone }) => (
     <>
       <tr>
         <TD>
-          {window.innerWidth <= 800 && (
+          {isPhone && (
             <div
               style={{
                 height: "100%",
@@ -59,17 +60,20 @@ const Row: React.FC<OrderBookFeed & { type: FeedType }> = React.memo(
         </TD>
       </tr>
     </>
-  )
-);
+  ));
 
 export const OrderBookTable: React.FC<{
   feed?: OrderBookFeed[];
   inverted: boolean;
   type: FeedType;
 }> = ({ feed, inverted, type }) => {
+  const isPhone = useIsPhone();
+  const ensuredOrderFeed = useMemo(() => {
+    return type === "bid" && isPhone ? [...(feed || [])].reverse() : feed;
+  }, [feed, type, isPhone]);
   return (
     <Table {...{ inverted }}>
-      {(window.innerWidth > 800 || inverted) && (
+      {(!isPhone || inverted) && (
         <thead>
           <tr>
             <TH>TOTAL</TH>
@@ -79,8 +83,8 @@ export const OrderBookTable: React.FC<{
         </thead>
       )}
       <tbody>
-        {feed?.map((item) => (
-          <Row key={item.price} {...item} type={type} />
+        {ensuredOrderFeed?.map((item) => (
+          <Row key={item.price} {...item} type={type} isPhone={isPhone} />
         ))}
       </tbody>
     </Table>

@@ -1,17 +1,17 @@
 import React from "react";
-import { ChartWrapper } from "../OrderBookPage";
+import { ChartWrapper } from "../templates/OrderBookTemplate";
 import { DepthChart } from "./DepthChart";
 import { OrderBookFooter } from "./OrderBookFooter";
 import { OrderBookHeader } from "./OrderBookHeader";
 import { OrderBookTable } from "./OrderBookTable";
 
-const visualMockAsks = [
+const mockData = [
   {
-    price: 58154,
-    size: 12500,
-    total: 12500,
-    pricePercent: 100,
-    sizePercent: 30,
+    price: 58122,
+    size: 170,
+    total: 12678,
+    pricePercent: 20,
+    sizePercent: 10,
   },
   {
     price: 58149,
@@ -21,29 +21,27 @@ const visualMockAsks = [
     sizePercent: 60,
   },
   {
-    price: 58122,
-    size: 170,
-    total: 12678,
-    pricePercent: 20,
-    sizePercent: 10,
+    price: 58154,
+    size: 12500,
+    total: 12500,
+    pricePercent: 100,
+    sizePercent: 30,
   },
 ];
 
-const visualMockBids = [...visualMockAsks].reverse();
-
 export const DepthChartScreenShot = () => (
   <ChartWrapper>
-    <DepthChart type={"bid"} data={visualMockBids} />
-    <DepthChart type={"ask"} reverse data={visualMockAsks} />
+    <DepthChart type={"bid"} data={mockData} />
+    <DepthChart type={"ask"} reverse data={mockData} />
   </ChartWrapper>
 );
 
 export const OBTableBidsScreenShot = () => (
-  <OrderBookTable feed={visualMockBids} inverted={false} type="bid" />
+  <OrderBookTable feed={mockData} inverted={false} type="bid" />
 );
 
 export const OBTableAsksScreenShot = () => (
-  <OrderBookTable feed={visualMockAsks} inverted={false} type="ask" />
+  <OrderBookTable feed={mockData} inverted={false} type="ask" />
 );
 
 export const OBHeaderScreenShot = () => (
