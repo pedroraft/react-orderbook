@@ -1,26 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { OrderBookPage } from "./modules/order-book/OrderBookPage";
+import { ThemeProvider } from "styled-components";
+import { Theme, theme } from "./config/theme";
+import { createGlobalStyle } from "styled-components";
 
-function App() {
+const GlobalStyle = createGlobalStyle<{ theme: Theme }>`
+  body {
+    color: ${({ theme }) => theme.colors.textWhite};
+    background-color: ${({ theme }) => theme.colors.bgGrey};
+    font-family: 'Open Sans', sans-serif;
+    color-scheme: dark;
+  }
+`;
+
+export const AppWrapper: React.FC = ({ children }) => (
+  <ThemeProvider theme={theme}>
+    <GlobalStyle />
+    {children}
+  </ThemeProvider>
+);
+
+const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AppWrapper>
+      <OrderBookPage />
+    </AppWrapper>
   );
-}
+};
 
 export default App;
