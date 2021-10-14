@@ -1,17 +1,18 @@
-import greenlet from "greenlet";
 import { useCallback, useEffect, useState } from "react";
 import { Subject } from "rxjs";
 import { bufferWhen } from "rxjs/operators";
 import { webSocket } from "rxjs/webSocket";
+import worker from "workerize-loader!./process-feed-worker"; // eslint-disable-line import/no-webpack-loader-syntax
 import { usePrevious } from "../../../core/hooks/usePrevious";
 import {
   FeedStorage,
   OrderBookFeedMap,
   RawOrderBookMessage,
 } from "../order-book";
-import { mergeRawFeedToFeedMap, processFeed } from "./process-order-book";
+import { processFeed } from "./process-feed-worker";
+import { mergeRawFeedToFeedMap } from "./process-order-book";
 
-const processFeedWorker = greenlet(processFeed);
+const workerInstance = worker<{ processFeed: typeof processFeed }>();
 
 export const PRODUCT_GROUPS = {
   PI_XBTUSD: [0.5, 1, 2.5],
@@ -128,7 +129,12 @@ export const useOrderBook = (
   // process feed map to array on a worker thread
   useEffect(() => {
     (async () => {
-      setFeed(await processFeedWorker({ feedStorage: feedMap, tick }));
+      setFeed(
+        await workerInstance.processFeed({
+          feedStorage: feedMap,
+          tick,
+        })
+      );
     })();
   }, [feedMap, tick]);
 

@@ -1,4 +1,5 @@
-import { mergeRawFeedToFeedMap, processFeed } from "./process-order-book";
+import { processFeed } from "./process-feed-worker";
+import { mergeRawFeedToFeedMap } from "./process-order-book";
 
 it("merge order book WS messages to local state", () => {
   expect(
