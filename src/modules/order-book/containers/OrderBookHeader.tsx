@@ -9,6 +9,7 @@ const Header = styled.div<{ theme: Theme }>`
   width: 100%;
   height: 60px;
   background-color: ${({ theme }) => theme.colors.bgGreyDark};
+  z-index: 2;
 `;
 
 const Spacer = styled.div`
