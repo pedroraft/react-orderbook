@@ -24,11 +24,11 @@ export const OrderBookTemplate: React.FC<ReturnType<typeof useOrderBook>> = ({
 }) => {
   return (
     <>
+      <OrderBookHeader {...props} />
       <Wrapper>
         <OrderBookTable feed={feed.bids} inverted={false} type="bid" />
         <OrderBookTable feed={feed.asks} inverted type="ask" />
       </Wrapper>
-      <OrderBookHeader {...props} />
       <OrderBookFooter {...props} />
     </>
   );
