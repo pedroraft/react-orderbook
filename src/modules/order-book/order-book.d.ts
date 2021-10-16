@@ -18,7 +18,6 @@ export interface OrderBookFeed {
   total: number;
   price: number;
   size: number;
-  pricePercent?: number;
   sizePercent?: number;
 }
 

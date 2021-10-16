@@ -10,6 +10,7 @@ const GlobalStyle = createGlobalStyle<{ theme: Theme }>`
     background-color: ${({ theme }) => theme.colors.bgGrey};
     font-family: 'Open Sans', sans-serif;
     color-scheme: dark;
+    margin: 0;
   }
 `;
 

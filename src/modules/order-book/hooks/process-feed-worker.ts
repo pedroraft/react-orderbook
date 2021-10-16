@@ -36,7 +36,7 @@ export const processFeed = async ({
         return { price: +key, size: feedMap[+key], total: 0 };
       })
       .sort((a, b) => {
-        if (type === "bid") return a.price - b.price;
+        if (type === "ask") return a.price - b.price;
         return b.price - a.price;
       })
       .reduce((acc, item, index) => {
@@ -66,35 +66,33 @@ export const processFeed = async ({
     }),
   };
 
-  const combinedSizeAsks =
-    feedMapArray.asks[feedMapArray.asks.length - 1]?.total;
-  const combinedSizeBids =
-    feedMapArray.bids[feedMapArray.bids.length - 1]?.total;
-  const maxSize = Math.max(combinedSizeAsks, combinedSizeBids);
-
   const getChartPropsFromFeed = ({
     feed,
-    type,
   }: {
     feed: OrderBookFeed[];
-    type: FeedType;
+    totalSize: number;
   }) => {
-    const priceArr = feed.map(({ price }) => price);
-    const maxPrice = Math.max(...priceArr);
-    const minPrice = Math.min(...priceArr);
     return feed.map((item) => {
-      const pricePercent =
-        ((item.price - minPrice) / (maxPrice - minPrice)) * 100;
       return {
         ...item,
-        pricePercent: type === "bid" ? 100 - pricePercent : pricePercent,
-        sizePercent: (item.size / maxSize) * 100,
+        sizePercent: (item.total / totalSize) * 100,
       };
     });
   };
 
+  const combinedSizeAsks =
+    feedMapArray.asks[feedMapArray.asks.length - 1]?.total;
+  const combinedSizeBids =
+    feedMapArray.bids[feedMapArray.bids.length - 1]?.total;
+  const totalSize = Math.max(combinedSizeAsks, combinedSizeBids);
   return {
-    asks: getChartPropsFromFeed({ feed: feedMapArray.asks, type: "ask" }),
-    bids: getChartPropsFromFeed({ feed: feedMapArray.bids, type: "bid" }),
+    asks: getChartPropsFromFeed({
+      feed: feedMapArray.asks,
+      totalSize,
+    }),
+    bids: getChartPropsFromFeed({
+      feed: feedMapArray.bids,
+      totalSize,
+    }),
   };
 };

@@ -4,12 +4,19 @@ import { Theme } from "../../../config/theme";
 import { PRODUCT_GROUPS, useOrderBook } from "../hooks/useOrderBook";
 
 const Header = styled.div<{ theme: Theme }>`
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 60px;
+  background-color: ${({ theme }) => theme.colors.bgGreyDark};
+`;
+
+const Spacer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   padding: 2vh 8vw 2vh 5vw;
-  background-color: ${({ theme }) => theme.colors.bgGreyDark};
 `;
 
 const Select = styled.select<{ theme: Theme }>`
@@ -25,15 +32,17 @@ export const OrderBookHeader: React.FC<
 > = ({ product, setTick, tick }) => {
   return (
     <Header>
-      <div>Order Book</div>
+      <Spacer>
+        <div>Order Book</div>
 
-      <Select value={tick} onChange={(event) => setTick(+event.target.value)}>
-        {PRODUCT_GROUPS[product].map((item) => (
-          <option value={item} key={item}>
-            Group {item}
-          </option>
-        ))}
-      </Select>
+        <Select value={tick} onChange={(event) => setTick(+event.target.value)}>
+          {PRODUCT_GROUPS[product].map((item) => (
+            <option value={item} key={item}>
+              Group {item}
+            </option>
+          ))}
+        </Select>
+      </Spacer>
     </Header>
   );
 };

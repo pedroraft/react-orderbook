@@ -5,13 +5,15 @@ import { useIsPhone } from "../../../core/hooks/useIsPhone";
 import { FeedType, OrderBookFeed } from "../order-book";
 
 const Table = styled.table<{ inverted: boolean; theme: Theme }>`
-  width: 100%;
+  height: 100%;
   border-collapse: collapse;
   direction: rtl;
   table-layout: fixed;
   text-align: right;
   @media (min-width: 800px) {
+    margin-right: ${({ inverted }) => (inverted ? "8%" : 0)};
     direction: ${({ inverted }) => (inverted ? "rtl" : "ltr")};
+    width: 50%;
   }
 `;
 
@@ -22,34 +24,44 @@ const TH = styled.th<{ theme: Theme }>`
 
 const TD = styled.td<{ type?: FeedType; theme: Theme }>`
   height: 1.5rem;
-  position: relative;
   color: ${({ type, theme }) => {
     if (!type) return undefined;
     return type === "bid" ? theme.colors.textRed : theme.colors.textGreen;
   }};
 `;
 
+const TR = styled.tr`
+  height: 1.5rem;
+`;
+
 const Row: React.FC<OrderBookFeed & { type: FeedType; isPhone: boolean }> =
-  React.memo(({ price, size, total, type, pricePercent, isPhone }) => (
+  React.memo(({ price, size, total, type, sizePercent = 0, isPhone }) => (
     <>
-      <tr>
+      <TR>
         <TD>
-          {isPhone && (
+          <div
+            style={{
+              width: isPhone ? "100%" : "50%",
+              [type === "bid" || isPhone ? "left" : "right"]: 0,
+              position: "absolute",
+              height: "1.6rem",
+              opacity: 0.2,
+            }}
+          >
             <div
               style={{
-                height: "100%",
-                width: `${pricePercent}vw`,
                 backgroundColor:
                   type === "bid"
                     ? theme.colors.textRed
                     : theme.colors.textGreen,
-                position: "absolute",
-                opacity: 0.2,
-                right: 0,
-                top: 0,
+                width: `${sizePercent}%`,
+                [type === "bid" ? "marginLeft" : "marginRight"]: `${
+                  isPhone ? 0 : 100 - sizePercent
+                }%`,
+                height: "100%",
               }}
             />
-          )}
+          </div>
           {Intl.NumberFormat("en-us").format(total)}
         </TD>
         <TD>{Intl.NumberFormat("en-us").format(size)}</TD>
@@ -58,7 +70,7 @@ const Row: React.FC<OrderBookFeed & { type: FeedType; isPhone: boolean }> =
             minimumFractionDigits: 2,
           }).format(price)}
         </TD>
-      </tr>
+      </TR>
     </>
   ));
 
@@ -68,8 +80,8 @@ export const OrderBookTable: React.FC<{
   type: FeedType;
 }> = ({ feed, inverted, type }) => {
   const isPhone = useIsPhone();
-  const ensuredOrderFeed = useMemo(() => {
-    return type === "bid" && isPhone ? [...(feed || [])].reverse() : feed;
+  const reOrderFeedWhenMobile = useMemo(() => {
+    return type === "ask" && isPhone ? [...(feed || [])].reverse() : feed;
   }, [feed, type, isPhone]);
   return (
     <Table {...{ inverted }}>
@@ -83,7 +95,7 @@ export const OrderBookTable: React.FC<{
         </thead>
       )}
       <tbody>
-        {ensuredOrderFeed?.map((item) => (
+        {reOrderFeedWhenMobile?.map((item) => (
           <Row key={item.price} {...item} type={type} isPhone={isPhone} />
         ))}
       </tbody>

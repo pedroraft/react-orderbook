@@ -6,11 +6,15 @@ import { Button } from "../../../core/components/UI/Button";
 import { useOrderBook } from "../hooks/useOrderBook";
 
 const Wrapper = styled.div`
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 2vh 8vw 2vh 5vw;
+  background-color: ${({ theme }) => theme.colors.bgGrey};
 `;
 
 const { colors } = theme;
